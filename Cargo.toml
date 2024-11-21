@@ -1,0 +1,17 @@
+[package]
+name = "string_manipulation"
+version = "0.1.0"
+edition = "2021"
+authors = ["Gunther Willems"]
+license = "MIT"
+description = """
+String manipulation functions using character indexing (UTF-8) instead of bytes.
+"""
+keywords = ["string", "str", "manipulation", "substr", "substring", "indexof", "utf8"]
+categories = ["data-structures"]
+readme = "README.md"
+repository = "https://github.com/guntherwillems/rust-string-manipulation"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
