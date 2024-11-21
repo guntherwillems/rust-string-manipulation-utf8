@@ -1,6 +1,7 @@
-/// Library string_manipulation
+/// Library string_manipulation_utf8
 /// Author: Gunther Willems
 /// Started 11/2024
+/// Version: 0.2.0 11/2024
 /// License: MIT
 /// 
 /// An implementation of string manipulation functions using character indexing

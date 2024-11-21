@@ -1,6 +1,5 @@
-use string_manipulation::str_concat;
-use string_manipulation::CharString;
-use string_manipulation::{indexof, str_remove, substr, substr_end, substring, substru};
+use string_manipulation_utf8::CharString;
+use string_manipulation_utf8::{indexof, str_remove, substr, substr_end, substring, substru, str_concat};
 
 #[test]
 fn test_substr() {

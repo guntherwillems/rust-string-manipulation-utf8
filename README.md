@@ -1,6 +1,8 @@
-# rust-string-manipulation
+# rust-string-manipulation-utf8
 
 **A Rust library with string manipulation functions using character indexing (UTF-8)**
+
+Library name: string_manipulation_utf8
 
 An implementation of string manipulation functions using character indexing instead of bytes. It uses UTF-8 encoded strings as implemented in Rust.
 
@@ -67,8 +69,8 @@ Example:
 Return the character index of "test" in the given string. Start searching at the beginning of the string. Result position is 0 because "test" starts at the beginning of the string.
 
 ~~~rust
-use string_manipulation::CharString; // String and str methods
-use string_manipulation::indexof; // str function
+use string_manipulation_utf8::CharString; // String and str methods
+use string_manipulation_utf8::indexof; // str function
 
 fn main() {
     let s1: &str = "test éèçà 123 test";
@@ -100,8 +102,8 @@ fn main() {
 Return the character index of "test" in the given string. Start searching from character index 6. The result is position 14.
 
 ~~~rust
-use string_manipulation::indexof;
-use string_manipulation::CharString; // String and str methods.
+use string_manipulation_utf8::indexof;
+use string_manipulation_utf8::CharString; // String and str methods.
 
 fn main() {
     let s1: &str = "test éèçà 123 test";
@@ -151,7 +153,7 @@ Syntax:
 Example:
 
 ~~~rust
-use string_manipulation::CharString; // String and str methods
+use string_manipulation_utf8::CharString; // String and str methods
 
 fn main() {
     assert_eq!("0123456789".substr(2, 3), "234");
@@ -171,8 +173,8 @@ fn main() {
 Example:
 
 ~~~rust
-use string_manipulation::substr;
-use string_manipulation::CharString; // String and str methods
+use string_manipulation_utf8::substr;
+use string_manipulation_utf8::CharString; // String and str methods
 
 fn main() {
     let s1: &str = "test éèçà 123 test";
@@ -225,8 +227,8 @@ Syntax:
 Example:
 
 ~~~rust
-use string_manipulation::CharString; // String and str methods
-use string_manipulation::substring; // str function
+use string_manipulation_utf8::CharString; // String and str methods
+use string_manipulation_utf8::substring; // str function
 
 fn main() {
     println!("{}", substring("0123456789", 2, 3)); // Result: 2
@@ -276,8 +278,8 @@ assert_eq!("0123456789".substr_end(-3), "789");
 Example:
 
 ~~~rust
-use string_manipulation::substr_end;
-use string_manipulation::CharString; // String and str methods // str function
+use string_manipulation_utf8::substr_end;
+use string_manipulation_utf8::CharString; // String and str methods // str function
 
 fn main() {
     let s1: &str = "test éèçà 123 test";
@@ -306,8 +308,8 @@ Syntax:
 Examples:
 
 ~~~rust
-use string_manipulation::str_remove;
-use string_manipulation::CharString; // String and str methods // str function
+use string_manipulation_utf8::str_remove;
+use string_manipulation_utf8::CharString; // String and str methods // str function
 
 fn main() {
     let s1: &str = "test éèçà 123 test";
@@ -333,7 +335,7 @@ Syntax:
 Examples:
 
 ~~~rust
-use string_manipulation::str_concat;
+use string_manipulation_utf8::str_concat;
 
 fn main() {
     println!(
@@ -445,7 +447,7 @@ Get a substring using byte positions with standard Rust methods.
 Using a string slice:
 
 ~~~rust
-use string_manipulation::str_concat;
+use string_manipulation_utf8::str_concat;
 
 fn main() {
     let s1: &str = "test éèçà 123 test";
@@ -472,7 +474,7 @@ fn main() {
 Using a string:
 
 ~~~rust
-use string_manipulation::str_concat;
+use string_manipulation_utf8::str_concat;
 
 fn main() {
     let s1: String = "test éèçà 123 test".to_owned();
@@ -499,7 +501,7 @@ fn main() {
 Shorter version:
 
 ~~~rust
-use string_manipulation::str_concat;
+use string_manipulation_utf8::str_concat;
 
 fn main() {
     // let s1: String = "test éèçà 123 test".to_owned(); // Also works with a string

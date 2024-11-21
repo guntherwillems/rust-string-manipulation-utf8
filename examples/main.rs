@@ -1,5 +1,5 @@
-use string_manipulation::CharString;
-use string_manipulation::{str_concat, str_remove, substr, substr_end, substring, substru}; // String and str methods
+use string_manipulation_utf8::CharString;
+use string_manipulation_utf8::{str_concat, str_remove, substr, substr_end, substring, substru}; // String and str methods
 
 fn main() {
     // let s1: &str = "test éèçà 123 test";

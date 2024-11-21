@@ -1,13 +1,13 @@
 [package]
-name = "string_manipulation"
-version = "0.1.0"
+name = "string_manipulation_utf8"
+version = "0.2.0"
 edition = "2021"
 authors = ["Gunther Willems"]
 license = "MIT"
 description = """
 String manipulation functions using character indexing (UTF-8) instead of bytes.
 """
-keywords = ["string", "str", "manipulation", "substr", "substring", "indexof", "utf8"]
+keywords = ["string", "manipulation", "substr", "indexof", "utf8"]
 categories = ["data-structures"]
 readme = "README.md"
 repository = "https://github.com/guntherwillems/rust-string-manipulation"
