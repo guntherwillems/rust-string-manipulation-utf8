@@ -2,7 +2,7 @@
 
 **A Rust library with string manipulation functions using character indexing (UTF-8)**
 
-Library name: string_manipulation_utf8
+Library name: [string_manipulation_utf8](https://crates.io/crates/string_manipulation_utf8)
 
 An implementation of string manipulation functions using character indexing instead of bytes. It uses UTF-8 encoded strings as implemented in Rust.
 
@@ -48,6 +48,12 @@ To compile and run the example code in examples/main.rs:
 
 To compile and run the tests in tests/tests.rs:  
 `carto test`
+
+Install:  
+Run the following Cargo command in your project directory:  
+`cargo add string_manipulation_utf8 `  
+Or add the following line to your Cargo.toml:  
+`string_manipulation_utf8 = "0.2.0"`
 
 
 ## Using character positioning

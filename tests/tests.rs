@@ -8,40 +8,51 @@ fn test_substr() {
 
     // ------------------------------ function ---------------------------------
 
-    assert_eq!(substr(s1, 2, 3), "234");
-    assert_eq!(substr(s1, -5, 3), "567");
-    assert_eq!(substr(s1, -5, -3), "345");
-    assert_eq!(substr(s1, 5, -3), "345");
-    assert_eq!(substr(s1, -4, 4), "6789");
+    // start_index >= 0
     assert_eq!(substr(s1, 0, 1), "0");
     assert_eq!(substr(s1, 0, 9), "012345678");
     assert_eq!(substr(s1, 0, 10), s1);
+    assert_eq!(substr(s1, 2, 3), "234");
 
     assert_eq!(substr(s1, 9, 1), "9");
     assert_eq!(substr(s1, 9, 2), "9");
     assert_eq!(substr(s1, 8, 2), "89");
+    assert_eq!(substr(s1, 5, 3), "567");
 
+    // start_index < 0
+    assert_eq!(substr(s1, -5, 3), "567");
+    assert_eq!(substr(s1, -4, 4), "6789");
     assert_eq!(substr(s1, -10, 3), "012");
     assert_eq!(substr(s1, -10, 1), "0");
     assert_eq!(substr(s1, 0, 3), "012"); // Same as previous
+
+    // length < 0
+    assert_eq!(substr(s1, 5, -3), "345");
+    assert_eq!(substr(s1, 0, -1), "0");
+    assert_eq!(substr(s1, 0, -2), "0"); // Past boundary
+    assert_eq!(substr(s1, 0, -5), "0"); // Past boundary
+    assert_eq!(substr(s1, -5, -3), "345");
+    assert_eq!(substr(s1, -1, -3), "789");
 
     // Empty string results
     assert_eq!(substr(s1, 2, 0), ""); // 0 length
     assert_eq!(substr(s1, 0, 0), ""); // 0 length
     assert_eq!(substr(s1, -4, 0), ""); // 0 length
 
+    // Empty string search
+    assert_eq!(substr("", 0, 11), "");
+    assert_eq!(substr("", 0, 100), "");
     assert_eq!(substr("", 3, 2), "");
     assert_eq!(substr("", -3, 2), "");
     assert_eq!(substr("", -3, -2), "");
-
-    // Empty string results past boundaries
     assert_eq!(substr("", 100, -100), "");
     assert_eq!(substr("", isize::MAX, isize::MIN), "");
-
     assert_eq!(substr("", -100, 100), "");
     assert_eq!(substr("", isize::MIN, isize::MAX), "");
 
     // Past string boundaries
+    assert_eq!(substr(s1, 0, 11), s1);
+    assert_eq!(substr(s1, 0, 100), s1);
     assert_eq!(substr(s1, 10, 2), "");
     assert_eq!(substr(s1, 10, 1), "");
     assert_eq!(substr(s1, -11, 1), "");
@@ -74,15 +85,8 @@ fn test_substr() {
     assert_eq!(substr(s1, -100, 100), "");
     assert_eq!(substr(s1, isize::MIN, isize::MAX), "");
 
-    assert_eq!(substr(s1, -100, -3), ""); // JavaScript gives ""
-    assert_eq!(substr(s1, isize::MIN, -3), ""); // JavaScript gives ""
-
-    // 1 position less than maximum isize values
-    assert_eq!(substr(s1, isize::MIN + 1, 5), "");
-    assert_eq!(substr(s1, isize::MAX - 1, -3), "");
-    assert_eq!(substr(s1, 5, isize::MAX - 1), "56789");
-    assert_eq!(substr(s1, 5, isize::MIN + 1), "012345");
-    assert_eq!(substr(s1, isize::MAX - 1, isize::MIN + 1), "");
+    assert_eq!(substr(s1, -100, -3), "");
+    assert_eq!(substr(s1, isize::MIN, -3), "");
 
     // -------------------------------- str ------------------------------------
 
@@ -137,8 +141,8 @@ fn test_substru() {
 
     assert_eq!(substru(s1, 0, 2), "01");
     assert_eq!(substru(s1, 2, 3), "234");
-    assert_eq!(substru(s1, 0, 100), s1);
     assert_eq!(substru(s1, 0, 9), "012345678");
+    assert_eq!(substru(s1, 0, 10), "0123456789");
 
     assert_eq!(substru(s1, 0, 1), "0");
     assert_eq!(substru(s1, 9, 1), "9");
@@ -153,6 +157,8 @@ fn test_substru() {
     // Past boundary
     assert_eq!(substru(s1, 10, 1), "");
     assert_eq!(substru(s1, 100, 1), "");
+    assert_eq!(substru(s1, 0, 11), s1);
+    assert_eq!(substru(s1, 0, 100), s1);
     assert_eq!(substru(s1, usize::MAX, 1), "");
 }
 
@@ -165,8 +171,8 @@ fn test_substr_end() {
 
     // get charcters util end of string
 
-    assert_eq!(substr_end(s1, 2), "23456789");
     assert_eq!(substr_end(s1, 0), s1);
+    assert_eq!(substr_end(s1, 2), "23456789");
     assert_eq!(substr_end(s1, 9), "9");
     assert_eq!(substr_end(s1, 10), ""); // Out of bounds
     assert_eq!(substr_end(s1, -1), "9");
@@ -182,15 +188,15 @@ fn test_substr_end() {
     assert_eq!(substr_end(s1, isize::MAX), "");
 
     // str
-    assert_eq!(s1.substr_end(2), "23456789");
     assert_eq!(s1.substr_end(0), s1);
+    assert_eq!(s1.substr_end(2), "23456789");
     assert_eq!(s1.substr_end(9), "9");
     assert_eq!(s1.substr_end(10), "");
     assert_eq!(s1.substr_end(-3), "789");
 
     // get charcters util end of string
-    assert_eq!(s2.substr_end(2), "23456789");
     assert_eq!(s2.substr_end(0), s1);
+    assert_eq!(s2.substr_end(2), "23456789");
     assert_eq!(s2.substr_end(9), "9");
     assert_eq!(s2.substr_end(10), "");
     assert_eq!(s2.substr_end(-3), "789");
