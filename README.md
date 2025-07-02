@@ -8,7 +8,7 @@ An implementation of string manipulation functions using character indexing inst
 
 This library also has common string functions like indexof, substr and substring that exist in other programming languages.
 
-It can be used as functions, or methods from 'str' type (string slice) and 'String' type.
+It can be used as functions or methods for 'str' type (string slice) and 'String' type.
 
 Library functions:
 
@@ -18,7 +18,7 @@ Library functions:
 - substr_end : get a substring from start index till the end of the string
 - substring : get a substring of a string using start and end index (not included)
 - str_remove : Remove a substring from a string
-- str_concat! : macro to concatenate multiple strings
+- str_concat! : macro to concatenate multiple strings (all strings are borrowed)
 
 Standard Rust functions:
 
@@ -53,7 +53,7 @@ Install:
 Run the following Cargo command in your project directory:  
 `cargo add string_manipulation_utf8 `  
 Or add the following line to your Cargo.toml:  
-`string_manipulation_utf8 = "0.2.0"`
+`string_manipulation_utf8 = "0.3.0"`
 
 
 ## Using character positioning
@@ -170,9 +170,10 @@ fn main() {
     assert_eq!("0123456789".substr(0, 0), ""); // Take nothing
     assert_eq!("0123456789".substr(-4, 0), ""); // Take nothing
 
-    assert_eq!("0123456789".substr(isize::MAX, 1), "");
-    assert_eq!("0123456789".substr(isize::MAX, isize::MIN), "");
-    assert_eq!("0123456789".substr(isize::MIN, isize::MAX), "");
+    assert_eq!("0123456789".substr(5, isize::MAX), "56789");
+    assert_eq!("0123456789".substr(isize::MAX, 1), ""); // Out of bounds
+    assert_eq!("0123456789".substr(isize::MAX, isize::MIN), ""); // Out of bounds
+    assert_eq!("0123456789".substr(isize::MIN, isize::MAX), ""); // Out of bounds
 }
 ~~~
 

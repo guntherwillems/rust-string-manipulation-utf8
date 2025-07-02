@@ -1,6 +1,6 @@
 [package]
 name = "string_manipulation_utf8"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 authors = ["Gunther Willems"]
 license = "MIT"

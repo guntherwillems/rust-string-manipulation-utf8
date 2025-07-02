@@ -3,7 +3,7 @@
 /// Started 11/2024
 /// Version: 0.2.0 11/2024
 /// License: MIT
-/// 
+///
 /// An implementation of string manipulation functions using character indexing
 /// instead of bytes. This library also has common string functions like indexof,
 /// substr and substring that exist in other programming languages.
@@ -167,8 +167,9 @@ pub fn indexof(s: &str, searchstring: &str, start_index: usize) -> Option<usize>
     let mut char_index: usize = start_index;
     let search_len: usize = searchstring.chars().count();
     let total_len: usize = s.len();
-    let mut match_count: usize; // How many characters match from the search position
+    let mut match_count: usize;
     let mut next_index: usize;
+    let mut self_tmp: std::iter::Skip<std::str::Chars<'_>>;
 
     // Iterate through the String characters from start_index
     for c in s.chars().skip(start_index) {
@@ -176,10 +177,12 @@ pub fn indexof(s: &str, searchstring: &str, start_index: usize) -> Option<usize>
         if c == searchstring.chars().next().unwrap() {
             match_count = 1;
 
+            self_tmp = s.chars().skip(char_index + 1);
+            // Check subsequent characters (sc) for a match
             // sc: char = each subsequent character in searchstring
             for sc in searchstring.chars().skip(1) {
                 next_index = char_index + match_count;
-                if next_index >= total_len || s.chars().nth(next_index).unwrap() != sc {
+                if next_index >= total_len || self_tmp.next().unwrap() != sc {
                     break;
                 }
                 match_count += 1;
@@ -192,7 +195,8 @@ pub fn indexof(s: &str, searchstring: &str, start_index: usize) -> Option<usize>
         char_index += 1;
     }
 
-    None // No match found
+    // No match found
+    None
 }
 
 // -------------------------------------------------------------------------

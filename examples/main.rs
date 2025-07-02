@@ -12,6 +12,7 @@ fn main() {
     println!("substr: {}", substr(&s2, 3, 2)); // "34"
     println!("substr: {}", s1.substr(3, 2)); // "34"
     println!("substr: {}", s2.substr(3, 2)); // "34"
+    println!("substr: {}", s2.substr(5, isize::MAX)); // "56789"
 
     println!("substru: {}", substru(s1, 3, 2)); // "34"
     println!("substru: {}", s1.substru(3, 2)); // "34"

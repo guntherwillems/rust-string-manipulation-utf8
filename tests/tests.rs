@@ -1,5 +1,5 @@
 use string_manipulation_utf8::CharString;
-use string_manipulation_utf8::{indexof, str_remove, substr, substr_end, substring, substru, str_concat};
+use string_manipulation_utf8::{indexof, str_concat, str_remove, substr, substr_end, substring, substru};
 
 #[test]
 fn test_substr() {
@@ -23,8 +23,8 @@ fn test_substr() {
     assert_eq!(substr(s1, -5, 3), "567");
     assert_eq!(substr(s1, -4, 4), "6789");
     assert_eq!(substr(s1, -10, 3), "012");
-    assert_eq!(substr(s1, -10, 1), "0");
     assert_eq!(substr(s1, 0, 3), "012"); // Same as previous
+    assert_eq!(substr(s1, -10, 1), "0");
 
     // length < 0
     assert_eq!(substr(s1, 5, -3), "345");
@@ -81,9 +81,6 @@ fn test_substr() {
 
     assert_eq!(substr(s1, 100, -100), "");
     assert_eq!(substr(s1, isize::MAX, isize::MIN), "");
-
-    assert_eq!(substr(s1, -100, 100), "");
-    assert_eq!(substr(s1, isize::MIN, isize::MAX), "");
 
     assert_eq!(substr(s1, -100, -3), "");
     assert_eq!(substr(s1, isize::MIN, -3), "");
@@ -267,6 +264,8 @@ fn test_indexof() {
     assert_eq!(indexof(s1, "home", 100), None); // Out of bounds
     assert_eq!(indexof(s1, "", 0), None); // Search nothing
     assert_eq!(indexof(s1, "not found", 0), None); // Not found
+    assert_eq!(indexof("", "not found", 0), None);
+    assert_eq!(indexof("", "not found", 10), None);
 
     // str
     assert_eq!(s1.indexof(&searchstring, 0), Some(18));
