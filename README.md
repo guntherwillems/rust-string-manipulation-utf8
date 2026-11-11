@@ -1,67 +1,55 @@
 # rust-string-manipulation-utf8
 
-**A Rust library with string manipulation functions using character indexing (UTF-8)**
+**A Rust library for string manipulation using character indexing (UTF-8)**
 
 Library name: [string_manipulation_utf8](https://crates.io/crates/string_manipulation_utf8)
 
-An implementation of string manipulation functions using character indexing instead of bytes. It uses UTF-8 encoded strings as implemented in Rust.
+This library implements string manipulation functions that use character indexing instead of byte indexing. It works with UTF-8-encoded strings as implemented in Rust.
 
-This library also has common string functions like indexof, substr and substring that exist in other programming languages.
+It provides common string functions, such as indexof, substr, and substring, that are available in other programming languages.
 
-It can be used as functions or methods for 'str' type (string slice) and 'String' type.
+The functions can be called directly or used as methods on the 'str' (string slice) and 'String' types.
 
 Library functions:
 
-- indexof : get the position from one string into another
-- substr : get a substring of a string using start index and length (signed values)
-- substru : get a substring of a string using start index and length (unsigned values)
-- substr_end : get a substring from start index till the end of the string
-- substring : get a substring of a string using start and end index (not included)
-- str_remove : Remove a substring from a string
+- indexof : find the position of one string within another (returns None if not found)
+- indexof_1 : find the position of one string within another (returns -1 if not found)
+- substr : extract a substring using a start index and a length (signed values); negative values count backwards
+- substru : extract a substring using a start index and a length (unsigned values)
+- substr_end : extract a substring from a start index to the end of the string
+- substring : extract a substring between a start index and an end index (not included)
+- str_remove : remove a substring from a string
 - str_concat! : macro to concatenate multiple strings (all strings are borrowed)
 
-Standard Rust functions:
-
-Functions independent of character and byte indexing in Rust.
-
-- replace : replaces all matches of a pattern with another string
-- replacen : replaces first N matches of a pattern with another string
-- strip_prefix : returns a string slice with the prefix removed
-
-- contains : check if a string contains another string
-- starts_with : check if a string starts with another string
-- ends_with : check if a string ends with another string
-- is_empty : check if a String has a length of zero
-
-> The Rust standard library doesn't support Unicode grapheme clusters (with combining diacritical marks) where multiple code points are required to form one character.  
+> The Rust standard library doesn’t provide built-in grapheme-cluster segmentation, so it can’t treat a sequence of code points — such as a base character plus combining diacritical marks — as a single user-perceived character.  
 > Example:  
 > e + combining acute = e + ´ = \u{0065}\u{0301} = é (two code points with 3 bytes, hex. 65 CC 81)  
 > Versus the character é = \u{00E9} with one code point for 2 bytes, hex. C3 A9  
 > This library uses the Rust standard library and hence will count such combined characters as multiple characters.
 
-See section 'Using byte positioning' for examples with native byte indexing.
+> Simple microbenchmarks were used to find the fastest algorithms. [GitHub rust-string-manip-benchmark](https://github.com/guntherwillems/rust-string-manip-benchmark)
 
-> Simple benchmarking code was used to find the faster algorithms. [GitHub rust-string-manip-benchmark](https://github.com/guntherwillems/rust-string-manip-benchmark)
+Installation:
+
+Run the following Cargo command in your project directory:  
+`cargo add string_manipulation_utf8`  
+Or add the following line to your Cargo.toml file:  
+`string_manipulation_utf8 = "1.0.0"`
 
 To compile and run the example code in examples/main.rs:  
 `cargo run --example main`
 
 To compile and run the tests in tests/tests.rs:  
-`carto test`
-
-Install:  
-Run the following Cargo command in your project directory:  
-`cargo add string_manipulation_utf8 `  
-Or add the following line to your Cargo.toml:  
-`string_manipulation_utf8 = "0.3.0"`
+`cargo test`
 
 
-## Using character positioning
+## Using character indexing
 
 
 ### indexof
 
-Get the character position from one string into another. Start searching from character 'start_index'. Returns None if not found. Index of the first character is 0.
+Find the character position of one string within another, starting the search at character index 'start_index'. Returns None if no match is found. The first character has index 0.
+Maximum index that can found usize::MAX.
 
 
 Syntax:
@@ -71,8 +59,6 @@ Syntax:
 - `indexof(s: &str, searchstring: &str, start_index: usize) -> Option<usize>`
 
 Example:
-
-Return the character index of "test" in the given string. Start searching at the beginning of the string. Result position is 0 because "test" starts at the beginning of the string.
 
 ~~~rust
 use string_manipulation_utf8::CharString; // String and str methods
@@ -101,38 +87,77 @@ fn main() {
         Some(pos) => println!("Found at position: {}", pos),
         None => println!("Not found"),
     }
-}
-~~~
 
-
-Return the character index of "test" in the given string. Start searching from character index 6. The result is position 14.
-
-~~~rust
-use string_manipulation_utf8::indexof;
-use string_manipulation_utf8::CharString; // String and str methods.
-
-fn main() {
-    let s1: &str = "test éèçà 123 test";
-    let s2: String = s1.to_owned();
-
+    // Find position "test" after string position 6
     match s1.indexof("test", 6) { // Result: Some(14)
         Some(pos) => println!("Found at position: {}", pos),
         None => println!("Not found"),
     }
+}
+~~~
 
-    match s2.indexof("test", 6) { // Result: Some(14)
-        Some(pos) => println!("Found at position: {}", pos),
-        None => println!("Not found"),
+
+### indexof_1
+
+Find the character position of one string within another, starting the search at character index 'start_index'. Returns -1 if no match is found. The first character has index 0.  
+This function works like indexof, but returns -1 if no match is found. It converts the result of indexof().
+Maximum index that can found isize::MAX.
+
+
+Syntax:
+
+- `str.indexof_1(searchstring: &str, start_index: usize) -> isize`
+- `string.indexof_1(searchstring: &str, start_index: usize) -> isize`
+- `indexof_1(s: &str, searchstring: &str, start_index: usize) -> isize`
+
+Example:
+
+~~~rust
+use string_manipulation_utf8::CharString; // String and str methods
+use string_manipulation_utf8::indexof_1; // str function
+
+fn main() {
+    let s1: &str = "test éèçà 123 test";
+    let s2: String = s1.to_owned();
+    let mut pos: isize;
+
+    match s1.indexof_1("test", 0) { // Result: 0
+        -1 => println!("Not found"),
+        pos => println!("Found at position: {pos}")
     }
 
-    match indexof(s1, "test", 6) { // Result: Some(14)
-        Some(pos) => println!("Found at position: {}", pos),
-        None => println!("Not found"),
+    pos = s1.indexof_1("testing", 0); // Result: -1
+    if pos == -1 {
+        println!("Not found");
+    } else {
+        println!("Found at position: {}", pos);
     }
 
-    match indexof(&s2, "test", 6) { // Result: Some(14)
-        Some(pos) => println!("Found at position: {}", pos),
-        None => println!("Not found"),
+    pos = s2.indexof_1("test", 0); // Result: 0
+    if pos == -1 {
+        println!("Not found");
+    } else {
+        println!("Found at position: {}", pos);
+    }
+
+    pos = indexof_1(s1, "test", 0); // Result: 0
+    if pos == -1 {
+        println!("Not found");
+    } else {
+        println!("Found at position: {}", pos);
+    }
+
+    pos = indexof_1(&s2, "test", 0); // Result: 0
+    if pos == -1 {
+        println!("Not found");
+    } else {
+        println!("Found at position: {}", pos);
+    }
+
+    // Find position "test" after string position 6
+    match s1.indexof_1("test", 6) { // Result: 14
+        -1 => println!("Not found"),
+        pos => println!("Found at position: {pos}")
     }
 }
 ~~~
@@ -140,15 +165,16 @@ fn main() {
 
 ### substr
 
-Get a substring of a string, beginning at character index 'start_index' and take 'length' characters.  
-Negative numbers count backwards:  
-  'start_index' from the end of the string.  
-  'length' from 'start_index'.  
-If start_index exceeds the string boundary limits, return an empty string. (Similar to C++ std::substr() and c# String.Substring.)  
-'length' can be isize::MAX or isize::MIN to get the substring until the positive or negative string boundary without the need to calculate the length. (Alternatively, see substr_end in this library.)  
-Index of the first character is 0.
+Extract a substring beginning at character index 'start_index' and containing 'length' characters.  
+Negative values count backwards:  
+  A negative 'start_index' counts backwards from the end of the string.  
+  A negative 'length' counts backwards from 'start_index'.  
+If start_index is outside the bounds of the string, an empty string is returned. (Similar to C++ std::substr() and C# String.Substring.)  
+Set 'length' to isize::MAX or isize::MIN to extract a substring up to the end or beginning of the string, respectively, without calculating the length. (Alternatively, see substr_end in this library.)  
+The first character has index 0.
 
-If 'start_index' and 'length' are positive, substru is a little faster like string.chars().skip(start_index).take(length).collect() that it interpolates. See substru and section 'Standard Rust methods' for examples.
+If 'start_index' and 'length' are positive, substru is a faster.
+
 
 Syntax:
 
@@ -160,6 +186,7 @@ Example:
 
 ~~~rust
 use string_manipulation_utf8::CharString; // String and str methods
+use string_manipulation_utf8::substr;
 
 fn main() {
     assert_eq!("0123456789".substr(2, 3), "234");
@@ -174,16 +201,7 @@ fn main() {
     assert_eq!("0123456789".substr(isize::MAX, 1), ""); // Out of bounds
     assert_eq!("0123456789".substr(isize::MAX, isize::MIN), ""); // Out of bounds
     assert_eq!("0123456789".substr(isize::MIN, isize::MAX), ""); // Out of bounds
-}
-~~~
 
-Example:
-
-~~~rust
-use string_manipulation_utf8::substr;
-use string_manipulation_utf8::CharString; // String and str methods
-
-fn main() {
     let s1: &str = "test éèçà 123 test";
     let s2: String = s1.to_owned();
 
@@ -193,19 +211,20 @@ fn main() {
 }
 ~~~
 
-Remark:
+Note:
 
-> To get a substring from 'start_index' until the end of the string:  
+> To extract a substring from 'start_index' to the end of the string:  
 > substr(string, start_index, isize::MAX)  
 > substr_end(string, start_index)  
-> substr(string, start_index, string.chars().count() is isize - start_index)
+> substr(string, start_index, string.chars().count() as isize - start_index)
 
 
 ## substru
 
-Same as substr, but only accepts unsiged values for 'start_index' and 'length'.  
-For positive numbers this is faster than using substr.  
-It interpolates the code: s.chars().skip(start_index).take(length).collect::<String>()
+Works like substr, but only accepts unsigned values for 'start_index' and 'length'.  
+For positive values, this is faster than using substr.  
+It interpolates the following code: s.chars().skip(start_index).take(length).collect::<String>()
+
 
 Syntax:
 
@@ -216,14 +235,15 @@ Syntax:
 
 ## substring
 
-Get a substring of a string beginning at character index 'start_index' up to and *excluding* the character index 'end_index'.
+Extracts a substring beginning at character index 'start_index' up to and *excluding* the character index 'end_index'.
 
-Equivalent of JavaScript substring with 2 parameters.  
-If 'start_index' is equal to 'end_index', substring() returns an empty string.  
-If 'start_index' is greater than 'end_index', swap 'start_index' and 'end_index'.  
-Any argument value that is less than 0 is treated as if it were 0.  
-Any argument value that is greater than string length is treated as if it were string length.  
-Index of the first character is 0.
+Equivalent to JavaScript substring with 2 parameters.  
+If 'start_index' equals 'end_index', substring() returns an empty string.  
+If 'start_index' is greater than 'end_index', the two indexes are swapped.  
+Any argument value less than 0 is treated as 0.  
+Any argument value greater than the string length is treated as the string length.  
+The first character has index 0.
+
 
 Syntax:
 
@@ -258,15 +278,14 @@ fn main() {
 
 ## substr_end
 
-Get a substring from character index 'start_index' till end of the string.  
-'start_index' can be negative to count backwards from the end of the string.  
-If start_index exceeds the string boundary limits, return an empty string.  
-(Similar to C++ std::substr() and c# String.Substring.)  
-Index of the first character is 0.
+Extract a substring from character index 'start_index' to the end of the string.  
+A negative 'start_index' counts backwards from the end of the string.  
+If start_index is outside the bounds of the string, an empty string is returned.  
+(Similar to C++ std::substr() and C# String.Substring.)  
+The first character has index 0.
 
-> Because Rust doesn't have a practical default value for function parameters, substr_end()  
-> replaces substr(string, start_index), string.substr(start_index).  
-> Same result with: substr(string, start_index, isize::MAX)
+> Produces the same result as: substr(string, start_index, isize::MAX)
+
 
 Syntax:
 
@@ -302,8 +321,9 @@ fn main() {
 
 ### str_remove
 
-Remove a substring from a string. Beginning at character index 'start_index' and take 'length' characters.  
-Index of the first character is 0.
+Remove a substring from a string. Beginning at character index 'start_index'  
+remove 'length' characters. The first character has index 0.
+
 
 Syntax:
 
@@ -312,7 +332,7 @@ Syntax:
 - `str_remove(s: &str, start_index: usize, length: usize) -> String`
 
 
-Examples:
+Example:
 
 ~~~rust
 use string_manipulation_utf8::str_remove;
@@ -331,15 +351,16 @@ fn main() {
 
 ### str_concat
 
-Macro to concatenate multiple strings.  
+A macro for concatenating multiple strings.  
 All strings are borrowed.  
-First allocates the needed capacity, then adds the stings.
+First allocates the required capacity, then appends the strings.
+
 
 Syntax:
 
 `str_concat!(&str1, &str2, ...)`
 
-Examples:
+Example:
 
 ~~~rust
 use string_manipulation_utf8::str_concat;
@@ -353,172 +374,39 @@ fn main() {
     let s1: String = "string1".to_owned();
     let s2: String = "string2".to_owned();
     let s3: String = "string3".to_owned();
-    let result: String = str_concat!(&s1, &s2, &s3);
-    println!("{result}"); // Result: "string1string2string3"
+
+    let result1: String = str_concat!(&s1, &s2, &s3);
+    println!("{result1}"); // Result: "string1string2string3"
 
     let s2: &str = "string2"; // Adding a string slice
-    let result: String = str_concat!(&s1, s2, &s3);
-    println!("{result}"); // Result: "string1string2string3"
+    let result2: String = str_concat!(&s1, s2, &s3);
+    println!("{result2}"); // Result: "string1string2string3"
 }
 ~~~
 
-Alternatives with Rust statements.
+Alternatives using standard Rust.
 
-The Rust 'std::concat!' macro only works with literals. Ex. `concat!("test", 10, 'b', true)`
+The Rust 'std::concat!' macro only works with literals. Example: `concat!("test", 10, 'b', true)`
 
-Using the std::format macro.  
+Using the std::format macro (slower)  
 `format!("{}{}{}", s1, s2, s3)`
 
-When adding strings with the + operator, the first string is moved (move of ownership), from the second string it's borrowed.  
+When concatenating strings with the + operator, ownership of the first string is moved; subsequent strings are borrowed.  
 `s1.clone() + &s2 + &s3`  
 `s1.to_owned() + &s2 + &s3`
 
 
-### Standard Rust methods
+## Standard Rust methods
 
-Standard Rust methods independent of character or byte indexing.
+Some standard Rust methods that do not depend on character or byte indexing:
 
-- replace : Replaces all matches of a pattern with another string.
-- replacen : Replaces first N matches of a pattern with another string.
-- strip_prefix : Returns a string slice with the prefix removed if the search string is found at the beginning of the string.
-- strip_suffix : Return a string slice with suffix removed if the search string is found at the end of the string.
+- replace : replace all matches of a pattern with another string.
+- replacen : replace the first N matches of a pattern with another string.
+- strip_prefix : return a string slice with the prefix removed if the search string is found at the beginning of the string.
+- strip_suffix : return a string slice with the suffix removed if the search string is found at the end of the string.
 
-- contains : Check if the given pattern matches a sub-slice of this string slice.
-- starts_with : Check if the given pattern matches a prefix of this string slice.
-- ends_with : Check if the given pattern matches a suffix of this string slice.
-- is_empty : Check if this String has a length of zero.
-- chars() : Getting a substring with the chars iterator.
-
-Examples:
-
-~~~rust
-fn main() {
-    let s1: &str = "test éèçà 123 test";
-    let s2: String = s1.to_owned();
-
-    println!("{}", s1.replace("test", "new")); // Result: "new éèçà 123 new"
-    println!("{}", s2.replacen("test", "new", 1)); // Result: "new éèçà 123 test"
-
-    match s1.strip_prefix("test ") {
-        // Result: Some("éèçà 123 test")
-        Some(s) => println!("Found: {}", s),
-        None => println!("Not found"),
-    };
-
-    let result = match s2.strip_prefix("test ") {
-        // Result: Some("éèçà 123 test")
-        Some(s) => s,
-        None => &s2,
-    };
-    println!("{result}");
-
-    assert_eq!(s1.contains("123"), true);
-    assert_eq!(s2.contains("123"), true);
-    assert_eq!(s1.starts_with("test"), true);
-    assert_eq!(s2.ends_with("test"), true);
-    assert_eq!(s1.is_empty(), false);
-    assert_eq!(s2.is_empty(), false);
-}
-~~~
-
-Getting a substring with the Rust chars() module that returns an iterator over the string characters. Skip(), take() and count() consume the chars iterator.
-
-~~~rust
-fn main() {
-    let str: &str = "test éèçà 123 test";
-    let string: String = str.to_owned();
-
-    let start_index: usize = 5;
-    let length: usize = 4;
-
-    // All 4 results return éèçà
-
-    // With type annotation
-    let _s1: String = string.chars().skip(start_index).take(length).collect();
-    let _s2: String = str.chars().skip(start_index).take(length).collect();
-
-    // Without type annotation
-    let _s3 = string.chars().skip(start_index).take(length).collect::<String>();
-    let _s4 = str.chars().skip(start_index).take(length).collect::<String>();
-    
-    let _total1 = str.chars().count(); // Length in characters (=18). Consumes the chars iterator.
-    let _total2 = string.chars().count(); // Length in characters (=18). Consumes the chars iterator.
-}
-~~~
-
-
-## Using byte positioning
-
-Get a substring using byte positions with standard Rust methods.
-
-Using a string slice:
-
-~~~rust
-use string_manipulation_utf8::str_concat;
-
-fn main() {
-    let s1: &str = "test éèçà 123 test";
-    let s2: &str = "éèçà ";
-
-    let s2_pos_o: Option<usize> = s1.find(s2);
-    if s2_pos_o.is_some() {
-        let s2_len: usize = s2.len(); // Length in bytes
-        let s2_pos: usize = s2_pos_o.unwrap(); // Position of s2 in s1 in bytes
-        let s2_pos_end: usize = s2_pos + s2_len; // Position of the last character of s2 in s1 in bytes
-
-        // Remove s2 from s1. Result: test 123 test
-        println!("{}", s1[..s2_pos].to_owned() + &s1[s2_pos_end..]);
-
-        // Same using the macro str_concat! from this library. Result: test 123 test
-        println!("{}", str_concat!(&s1[..s2_pos], &s1[s2_pos_end..]));
-
-        // Get characters from s1 after s2
-        println!("{}", &s1[s2_pos_end..]); // Result: 123 test
-    }
-}
-~~~
-
-Using a string:
-
-~~~rust
-use string_manipulation_utf8::str_concat;
-
-fn main() {
-    let s1: String = "test éèçà 123 test".to_owned();
-    let s2: &str = "éèçà ";
-
-    let s2_pos_o: Option<usize> = s1.find(s2);
-    if s2_pos_o.is_some() {
-        let s2_len: usize = s2.len(); // Length in bytes
-        let s2_pos: usize = s2_pos_o.unwrap(); // Position in bytes
-        let s2_pos_end: usize = s2_pos + s2_len;
-
-        // Remove s2 from s1. Result: test 123 test
-        println!("{}", s1[..s2_pos].to_owned() + &s1[s2_pos_end..]);
-
-        // Same using the macro str_concat! from this library. Result: test 123 test
-        println!("{}", str_concat!(&s1[..s2_pos], &s1[s2_pos_end..]));
-
-        // Get characters from s1 after s2 inside s1
-        println!("{}", &s1[s2_pos_end..]); // Result: 123 test
-    }
-}
-~~~
-
-Shorter version:
-
-~~~rust
-use string_manipulation_utf8::str_concat;
-
-fn main() {
-    // let s1: String = "test éèçà 123 test".to_owned(); // Also works with a string
-    let s1: &str = "test éèçà 123 test";
-    let s2: &str = "éèçà ";
-
-    let s2_pos_o: Option<usize> = s1.find(s2);
-    if s2_pos_o.is_some() {
-        println!("{}", str_concat!(&s1[..s2_pos_o.unwrap()], &s1[s2_pos_o.unwrap() + s2.len()..]));
-        // Result: test 123 test
-    }
-}
-~~~
+- contains : check whether the given pattern matches a substring of this string slice.
+- starts_with : check whether the given pattern matches a prefix of this string slice.
+- ends_with : check whether the given pattern matches a suffix of this string slice.
+- is_empty : check whether this String has a length of zero.
+- chars() : use the chars iterator to extract a substring.

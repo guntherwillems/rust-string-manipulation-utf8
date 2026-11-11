@@ -1,25 +1,28 @@
 /// Library string_manipulation_utf8
 /// Author: Gunther Willems
 /// Started 11/2024
-/// Version: 0.2.0 11/2024
+/// Version: 1.0.0 10/2026
 /// License: MIT
 ///
 /// An implementation of string manipulation functions using character indexing
 /// instead of bytes. This library also has common string functions like indexof,
-/// substr and substring that exist in other programming languages.
-/// It can be used as functions or methods from 'str' type (string slice) or 'String' type.
+/// substr and substring that are available in other programming languages.
+/// The functions can be called directly or used as methods on the 'str' (string slice) and 'String' types.
 /// Overview:
-///   indexof : get the position from one string into another
-///   substr : get a substring of a string using start index and length (signed values)
-///   substru : get a substring of a string using start index and length (unsigned values)
-///   subst_to_end : get a substring from start index till the end of the string
-///   substring : get a substring of a string using start and end index (not included)
-///   str_remove : Remove a substring from a string
-///   str_concat! : macro to concatenate multiple strings
+/// indexof : find the position of one string within another (returns None if not found)
+/// indexof_1 : find the position of one string within another (returns -1 if not found)
+/// substr : extract a substring using a start index and a length (signed values); negative values count backwards
+/// substru : extract a substring using a start index and a length (unsigned values)
+/// substr_end : extract a substring from a start index to the end of the string
+/// substring : extract a substring between a start index and an end index (not included)
+/// str_remove : remove a substring from a string
+/// str_concat! : macro to concatenate multiple strings (all strings are borrowed)
+
 use std::cmp::Ordering;
 
 pub trait CharString {
     fn indexof(&self, searchstring: &str, start_index: usize) -> Option<usize>;
+    fn indexof_1(&self, searchstring: &str, start_index: usize) -> isize;
     fn substr(&self, start_index: isize, length: isize) -> String;
     fn substru(&self, start_index: usize, length: usize) -> String;
     fn substr_end(&self, start_index: isize) -> String;
@@ -30,6 +33,10 @@ pub trait CharString {
 impl CharString for str {
     fn indexof(&self, searchstring: &str, start_index: usize) -> Option<usize> {
         indexof(&self, searchstring, start_index)
+    }
+
+    fn indexof_1(&self, searchstring: &str, start_index: usize) -> isize {
+        indexof_1(&self, searchstring, start_index)
     }
 
     fn substr(&self, start_index: isize, length: isize) -> String {
@@ -58,6 +65,10 @@ impl CharString for String {
         indexof(&self, searchstring, start_index)
     }
 
+    fn indexof_1(&self, searchstring: &str, start_index: usize) -> isize {
+        indexof_1(&self, searchstring, start_index)
+    }
+
     fn str_remove(&self, start_index: usize, length: usize) -> String {
         str_remove(&self, start_index, length)
     }
@@ -79,10 +90,10 @@ impl CharString for String {
     }
 }
 
-// -------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
-/// Macro to concatenate multiple strings.
-/// Allocates the needed capacity and adds the stings.
+/// Macro for concatenating multiple strings.
+/// First allocates the required capacity, then appends the strings.
 /// All strings are borrowed.
 /// Example: let s: String = str_concat!(&s1, &s2, &s3);
 /// The arguments are string slices (&str). The number of arguments can be 2 or more.
@@ -111,15 +122,17 @@ macro_rules! str_concat {
         };
     }
 
-// -------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 /// Theoretically calculate the start and end position within a string with a total of length characters.
-/// Numbers can be negative to count from the end of the string (start_index) and backwards (length).
+/// Numbers can be negative to count backwards.
+/// A negative 'start_index' counts backwards from the end of the string.
+/// A negative 'length' counts backwards from 'start_index'.
 /// total_length = total length of the string.
 /// start_index = start index (can be negative).
 /// length = how many characters to count from the start_index (can be negative).
-/// If length is 0, empty string, start and end are equal to 0 (0, 0).
-/// If start_index exceeds the string boundary limits, return an empty string (0, 0).
+/// If length is 0 (empty string), start and end are equal to 0 (0, 0).
+/// If start_index is outside the bounds of the string, return an empty string (0, 0).
 /// Returns Tuple (start, end) positions. Result is a range from 'start' index till 'end' index (not included).
 #[inline]
 fn calc_start_end(total_length: usize, start_index: isize, length: isize) -> (usize, usize) {
@@ -154,11 +167,12 @@ fn calc_start_end(total_length: usize, start_index: isize, length: isize) -> (us
     }
 }
 
-// -------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
-/// Get the character position from one string into another. Start searching
-/// from character index 'start_index'. Returns None if not found. Index of
-/// the first character is 0.
+/// Find the character position of one string (searchstring) within another (s),
+/// starting the search at character index 'start_index'.
+/// Returns None if no match is found. The first character has index 0.
+/// Maximum index that can found usize::MAX.
 pub fn indexof(s: &str, searchstring: &str, start_index: usize) -> Option<usize> {
     if searchstring.is_empty() {
         return None;
@@ -199,10 +213,26 @@ pub fn indexof(s: &str, searchstring: &str, start_index: usize) -> Option<usize>
     None
 }
 
-// -------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+/// This function works like indexof, but returns -1 if no match is found.
+/// Find the character position of one string (searchstring) within another (s),
+/// starting the search at character index 'start_index'.
+/// Returns -1 if no match is found. The first character has index 0.
+/// It converts the result of indexof().
+/// Maximum index that can found isize::MAX.
+pub fn indexof_1(s: &str, searchstring: &str, start_index: usize) -> isize {
+    match s.indexof(searchstring, start_index) {
+      // usize can be larger than isize::MAX
+      Some(index) => isize::try_from(index).unwrap_or(-1),
+      None => -1
+    }
+}
+
+// -----------------------------------------------------------------------------
 
 /// Remove a substring from a string. Beginning at character index 'start_index'
-/// and take 'length' characters. Index of the first character is 0.
+/// remove 'length' characters. Index of the first character is 0.
 pub fn str_remove(s: &str, start_index: usize, length: usize) -> String {
     let mut chars: std::str::Chars = s.chars();
     let mut s: String = s.to_owned();
@@ -253,13 +283,13 @@ pub fn str_remove(s: &str, start_index: usize, length: usize) -> String {
     s
 }
 
-// -------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
-/// Get a substring of a string, beginning at character index 'start_index'
+/// Extract a substring beginning at character index 'start_index'
 /// and take 'length' characters. Index of the first character is 0.
 /// Negative numbers count backwards:
-///  'start_index' from the end of the string.
-///  'length' from 'start_index'.
+///  'start_index' counts backwards from the end of the string.
+///  'length' counts backwards from 'start_index'.
 /// If start_index exceeds the string boundary limits, return an empty string.
 /// (Similar to C++ std::substr() and c# String.Substring.)
 /// Examples:
@@ -282,20 +312,22 @@ pub fn substr(s: &str, start_index: isize, length: isize) -> String {
     s.chars().skip(start).take(end - start).collect::<String>()
 }
 
-// -------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 /// Get a substring of a string, beginning at character index 'start_index'
 /// and take 'length' characters. Using unsigned start_index and length.
+/// Works like substr, but only accepts unsigned values for 'start_index' and 'length'.
+/// It interpolates the following code.
 /// Index of the first character is 0.
 #[inline]
 pub fn substru(s: &str, start_index: usize, length: usize) -> String {
     s.chars().skip(start_index).take(length).collect::<String>()
 }
 
-// -------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
-/// Get a substring from character index 'start_index' till end of the string.
-/// 'start_index' can be negative to count backwards from the end.
+/// Extract a substring from character index 'start_index' to the end of the string.
+/// 'start_index' can be negative to count backwards from the end of the string.
 /// If start_index exceeds the string boundary limits, return an empty string (0, 0).
 /// (Similar to C++ std::substr() and c# String.Substring.)
 /// Index of the first character is 0.
@@ -319,15 +351,15 @@ pub fn substr_end(s: &str, start_index: isize) -> String {
         .collect::<String>()
 }
 
-// -------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
-/// Get a substring of a string beginning at character index start_index up
-/// to and *excluding* the character index end_index.
+/// Extracts a substring beginning at character index 'start_index'
+/// up to and excluding the character index end_index.
 /// Equivalent of JavaScript substring with 2 parameters.
 /// If start_index is equal to end_index, substring() returns an empty string.
 /// If start_index is greater than end_index, swap start_index and end_index.
-/// Any argument value that is less than 0 is treated as if it were 0.
-/// Any argument value that is greater than string length is treated as if it were string length.
+/// Any argument value that is less than 0 is treated as 0.
+/// Any argument value that is greater than string length is treated as the string length.
 /// Index of the first character is 0.
 pub fn substring(s: &str, start_index: isize, end_index: isize) -> String {
     let mut start: isize;
@@ -359,3 +391,5 @@ pub fn substring(s: &str, start_index: isize, end_index: isize) -> String {
         .take((end - start) as usize)
         .collect::<String>()
 }
+
+// -----------------------------------------------------------------------------

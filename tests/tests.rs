@@ -1,5 +1,5 @@
 use string_manipulation_utf8::CharString;
-use string_manipulation_utf8::{indexof, str_concat, str_remove, substr, substr_end, substring, substru};
+use string_manipulation_utf8::{indexof, indexof_1, str_concat, str_remove, substr, substr_end, substring, substru};
 
 #[test]
 fn test_substr() {
@@ -284,6 +284,49 @@ fn test_indexof() {
     assert_eq!(s2.indexof("home", 100), None); // Out of bounds
     assert_eq!(s2.indexof("", 0), None); // Search nothing
     assert_eq!(s2.indexof("not found", 0), None); // Not found
+}
+
+// -----------------------------------------------------------------------------
+
+#[test]
+fn test_indexof_1() {
+    let s1: &str = "Test 123 éèçà 123 test home";
+    let s2: String = s1.to_owned();
+    let searchstring: String = "test".to_owned();
+
+    assert_eq!(indexof_1(s1, &searchstring, 0), 18);
+    assert_eq!(indexof_1(s1, &searchstring, 10), 18);
+    assert_eq!(indexof_1(s1, "123", 8), 14);
+    assert_eq!(indexof_1(s1, "Test", 0), 0);
+    assert_eq!(indexof_1(s1, "home", 10), 23);
+    assert_eq!(indexof_1(s1, "e", 0), 1);
+    assert_eq!(indexof_1(s1, "T", 0), 0);
+    assert_eq!(indexof_1(s1, "ç", 3), 11);
+    assert_eq!(indexof_1(s1, "e", 26), 26);
+    assert_eq!(indexof_1(s1, "e", 27), -1); // Out of bounds
+    assert_eq!(indexof_1(s1, "home", 100), -1); // Out of bounds
+    assert_eq!(indexof_1(s1, "", 0), -1); // Search nothing
+    assert_eq!(indexof_1(s1, "not found", 0), -1); // Not found
+    assert_eq!(indexof_1("", "not found", 0), -1);
+    assert_eq!(indexof_1("", "not found", 10), -1);
+
+    // str
+    assert_eq!(s1.indexof_1(&searchstring, 0), 18);
+    assert_eq!(s1.indexof_1(&searchstring, 10), 18);
+    assert_eq!(s1.indexof_1("123", 8), 14);
+    assert_eq!(s1.indexof_1("home", 10), 23);
+    assert_eq!(s1.indexof_1("home", 100), -1); // Out of bounds
+    assert_eq!(s1.indexof_1("", 0), -1); // Search nothing
+    assert_eq!(s1.indexof_1("not found", 0), -1); // Not found
+
+    // String
+    assert_eq!(s2.indexof_1(&searchstring, 0), 18);
+    assert_eq!(s2.indexof_1(&searchstring, 10), 18);
+    assert_eq!(s2.indexof_1("123", 8), 14);
+    assert_eq!(s2.indexof_1("home", 10), 23);
+    assert_eq!(s2.indexof_1("home", 100), -1); // Out of bounds
+    assert_eq!(s2.indexof_1("", 0), -1); // Search nothing
+    assert_eq!(s2.indexof_1("not found", 0), -1); // Not found
 }
 
 // -----------------------------------------------------------------------------
